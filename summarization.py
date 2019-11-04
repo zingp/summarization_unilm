@@ -1,6 +1,3 @@
-#! -*- coding: utf-8 -*-
-
-
 from tqdm import tqdm
 import os, json, codecs
 from bert4keras.bert import load_pretrained_model
@@ -75,7 +72,8 @@ tokenizer = SimpleTokenizer(token_dict)
 
 
 def padding(x):
-    """padding至batch内的最大长度
+    """
+    padding至batch内的最大长度
     """
     ml = max([len(i) for i in x])
     return np.array([i + [0] * (ml - len(i)) for i in x])
