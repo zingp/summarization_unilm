@@ -25,8 +25,8 @@ min_count = 0
 max_input_len = 256
 max_output_len = 32
 batch_size = 16
-steps_per_epoch = 18750
-epochs = 100
+steps_per_epoch = 1000  # 37500.0
+epochs = 1000
 
 print(f"args:{min_count}-{max_input_len}-{max_output_len}-{batch_size}")
 model_name = './model/weibo_model_{}.weights'
@@ -138,7 +138,9 @@ class Evaluate(Callback):
         # 保存最优
         if logs['loss'] <= self.lowest:
             self.lowest = logs['loss']
-            model.save_weights(model_name.format(epoch))
+            if epoch % 5 == 0:
+                print("Epoch: {} | Loss: {}".format(epoch, logs['loss']))
+                model.save_weights(model_name.format(epoch))
         # 演示效果
         show(model, tokenizer, s_list)
 
