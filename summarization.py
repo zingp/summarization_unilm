@@ -33,7 +33,8 @@ class Config(object):
             self.storge_path, "models")                         # 存储训练得到的模型
         self.model_name = os.path.join(
             self.model_path, "unilm_model.bin")                 # 模型名称
-        for d in [self.storge_path,self.data_path,self.model_path]:
+        for d in [self.storge_path, self.data_path,
+                    pretrained_model_path, self.model_path]:
             if not os.path.isdir(d):
                 os.mkdir(d)
 
