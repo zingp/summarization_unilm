@@ -14,7 +14,7 @@ class Config(object):
         os.environ['CUDA_VISIBLE_DEVICES'] = '0'               # 使用GPU编号
         self.storge_path = "./storage"                         # 数据、模型存储路径
         self.pretrained_model_path = os.path.join(
-             self.storge_path, "pretrain_model")               # bert 预训练模型存储路径
+             self.storge_path, "pretrain_model/chinese_L-12_H-768_A-12")    # bert 预训练模型存储路径
         # bert 预训练模型路径 chinese_L-12_H-768_A-12
         self.bert_config = os.path.join(
             self.pretrained_model_path, "bert_config.json")
@@ -34,7 +34,7 @@ class Config(object):
         self.model_name = os.path.join(
             self.model_path, "unilm_model.bin")                 # 模型名称
         for d in [self.storge_path, self.data_path,
-                    pretrained_model_path, self.model_path]:
+                    self.pretrained_model_path, self.model_path]:
             if not os.path.isdir(d):
                 os.mkdir(d)
 
@@ -129,6 +129,7 @@ def creat_model(config, keep_words):
     model = load_pretrained_model(
         config.bert_config,
         config.bert_checkpoint,
+        #config.pretrained_model_path,
         seq2seq=True,
         keep_words=keep_words,  # 只保留keep_words中的字，精简原字表
     )
