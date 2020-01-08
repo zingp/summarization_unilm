@@ -9,7 +9,7 @@ from keras.optimizers import Adam
 import pandas as pd
 
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 config_path = './data/seq2seq_config.json'
 min_count = 0
 max_input_len = 256
