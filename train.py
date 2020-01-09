@@ -44,8 +44,8 @@ class Config(object):
         self.max_input_len = 256    # 输入最大序列长度
         self.max_output_len = 32    # 生成最大序列长度
         self.batch_size = 16        # 批次大小
-        self.steps_per_epoch = 1000  # 迭代次数？
-        self.epochs = 10     
+        self.steps_per_epoch = int(50000/self.batch_size)  # 迭代次数？
+        self.epochs = 50    
 
 
 def read_text(config):
@@ -200,11 +200,11 @@ def show(config, tokenizer, model):
 
 
 class Evaluate(Callback):
-    def __init__(self):
+    def __init__(self, config, tokenizer, model):
         super().__init__()
         self.lowest = 1e10
 
-    def on_epoch_end(self, config, tokenizer, model, epoch, logs=None):
+    def on_epoch_end(self, epoch, logs=None):
         # 保存最优
         if logs['loss'] <= self.lowest:
             self.lowest = logs['loss']
@@ -223,7 +223,7 @@ if __name__ == '__main__':
     model = creat_model(config, keep_words)
     model.summary()
 
-    evaluator = Evaluate()
+    evaluator = Evaluate(config, tokenizer, model)
     # 开始训练
     model.fit_generator(
          data_generator(config, tokenizer),
