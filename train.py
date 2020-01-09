@@ -45,7 +45,7 @@ class Config(object):
         self.max_output_len = 32    # 生成最大序列长度
         self.batch_size = 16        # 批次大小
         self.steps_per_epoch = int(50000/self.batch_size)  # 迭代次数？
-        self.epochs = 50    
+        self.epochs = 15  
 
 
 def read_text(config):
@@ -64,7 +64,7 @@ def read_text(config):
 def build_custom_vocab(config):
     """构建自定义词典"""
     if os.path.exists(config.vocab_file):
-        print("loading custom vocab form local ....")
+        print("Loading custom vocab form local ....")
         chars = json.load(open(config.vocab_file, encoding='utf-8'))
     else:
         chars = {}
@@ -208,7 +208,8 @@ class Evaluate(Callback):
         # 保存最优
         if logs['loss'] <= self.lowest:
             self.lowest = logs['loss']
-            model.save_weights(config.model_name)
+            name = "{}.epoch{}".format(config.model_name, epoch)
+            model.save_weights(name)
         # 演示效果
         show(config, tokenizer, model)
 
