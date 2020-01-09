@@ -8,6 +8,7 @@ from keras import backend as K
 from keras.callbacks import Callback
 from keras.optimizers import Adam
 import pandas as pd
+import numpy as np
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '6'
 
