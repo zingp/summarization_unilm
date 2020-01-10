@@ -7,11 +7,13 @@ from keras import backend as K
 from keras.callbacks import Callback
 from keras.optimizers import Adam
 import pandas as pd
+import argparse
 
 
 class Config(object):
-    def __init__(self):
+    def __init__(self, mode):
         os.environ['CUDA_VISIBLE_DEVICES'] = '0'               # 使用GPU编号
+        self.mode = mode
         self.storge_path = "./storage"                         # 数据、模型存储路径
         self.pretrained_model_path = os.path.join(
              self.storge_path, "pretrain_model/chinese_L-12_H-768_A-12")    # bert 预训练模型存储路径
@@ -23,7 +25,7 @@ class Config(object):
         self.bert_vocab= os.path.join(
             self.pretrained_model_path, "vocab.txt")
 
-        self.data_path = os.path.join(self.storge_path, "data")  # 存储训练数据
+        self.data_path = os.path.join(self.storge_path, "data")      # 存储训练数据
         self.train_file = os.path.join(self.data_path, "train.txt")  # 训练数据
         self.dev_file = os.path.join(self.data_path, "dev.txt")
         self.vocab_file = os.path.join(
@@ -39,7 +41,6 @@ class Config(object):
                 os.mkdir(d)
 
         # 训练参数
-        # config_path = './data/custom_vocab.txt'
         self.min_count = 0          # 最低词频
         self.max_input_len = 256    # 输入最大序列长度
         self.max_output_len = 32    # 生成最大序列长度
@@ -50,7 +51,9 @@ class Config(object):
 
 def read_text(config):
     """从文件读取文章、摘要"""
-    with open(config.train_file, "r") as f:
+    filename = config.train_file 
+        if config.mode == "train" else config.dev_file
+    with open(filename, "r") as f:
         for line in f:
             if not line.strip():
                 continue
@@ -214,7 +217,24 @@ class Evaluate(Callback):
         show(config, tokenizer, model)
 
 
+def getargs():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mode",
+                        default=None,
+                        type=str,
+                        required=True,
+                        help="train, dev, predict")
+    parser.add_argument("--model_path", 
+                        default=None,
+                        type=str,
+                        required=True,
+                        help="model path for dev or predict")
+    args = parser.parse_args()
+    return args
+
+
 if __name__ == '__main__':
+    args = getargs()
 
     config = Config()
     token_dict, keep_words = build_vocab(config)
@@ -223,17 +243,29 @@ if __name__ == '__main__':
     # 构建模型
     model = creat_model(config, keep_words)
     model.summary()
+    if args.mode == "train":
 
-    evaluator = Evaluate(config, tokenizer, model)
-    # 开始训练
-    model.fit_generator(
-         data_generator(config, tokenizer),
-         steps_per_epoch=config.steps_per_epoch,
-         epochs=config.epochs,
-         callbacks=[evaluator]
-     )
-    
-    # 预测
-    #model.load_weights(model_name)
-    #show()
+        evaluator = Evaluate(config, tokenizer, model)
+        # 开始训练
+        model.fit_generator(
+            data_generator(config, tokenizer),
+            steps_per_epoch=config.steps_per_epoch,
+            epochs=config.epochs,
+            callbacks=[evaluator]
+        )
+    elif args.mode == "dev":
+        n = 0
+        model.load_weights(args.model_path)
+        for art, summ in read_text(config):
+            predic = gen_sent(config, tokenizer, model, art)
+            print("原文:", art)
+            print("- "*20)
+            print("参考摘要:", summ)
+            print("- "*20)
+            print("生成摘要:", predic)
+            print("*"*50)
+            n += 1
+            if n == 200:
+                break
+
      
