@@ -51,8 +51,7 @@ class Config(object):
 
 def read_text(config):
     """从文件读取文章、摘要"""
-    filename = config.train_file 
-        if config.mode == "train" else config.dev_file
+    filename = config.train_file if config.mode == "train" else config.dev_file
     with open(filename, "r") as f:
         for line in f:
             if not line.strip():
@@ -236,7 +235,7 @@ def getargs():
 if __name__ == '__main__':
     args = getargs()
 
-    config = Config()
+    config = Config(args.mode)
     token_dict, keep_words = build_vocab(config)
     # 建立分词器
     tokenizer = SimpleTokenizer(token_dict)
